@@ -1,0 +1,40 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.prakriti.tasktimer.MainActivity">
+
+    <item
+        android:id="@+id/menu_main_addTask"
+        android:icon="@android:drawable/ic_menu_add"
+        android:orderInCategory="@integer/one"
+        android:title="@string/add_task"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_main_showDurations"
+        android:icon="@android:drawable/ic_menu_view"
+        android:orderInCategory="@integer/two"
+        android:title="@string/durations_report"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_main_settings"
+        android:orderInCategory="@integer/three"
+        android:title="@string/settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/main_menu_aboutApp"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:orderInCategory="@integer/four"
+        android:title="@string/about"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/main_menu_generateData"
+        android:orderInCategory="@integer/five"
+        android:title="@string/generate_data"
+        android:visible="false"
+        app:showAsAction="never" />
+
+</menu>
