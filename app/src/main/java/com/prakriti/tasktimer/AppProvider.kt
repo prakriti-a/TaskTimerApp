@@ -158,7 +158,7 @@ class AppProvider: ContentProvider() {
         // if insert op was successful, recordId will not be 0
         if(recordId > 0) {
             Log.i(TAG, "insert: notify observers of change with $uri")
-            context?.contentResolver?.notifyChange(uri, null) // pass original uri passed to insert()
+            context.contentResolver?.notifyChange(uri, null) // pass original uri passed to insert()
         }
         Log.d(TAG, "insert: returning uri :$returnUri")
         return  returnUri
@@ -210,7 +210,7 @@ class AppProvider: ContentProvider() {
         // notify observers
         if(count > 0) {
             Log.i(TAG, "update: notifying observers of change with $uri")
-            context?.contentResolver?.notifyChange(uri, null)
+            context.contentResolver?.notifyChange(uri, null)
         }
         Log.d(TAG, "update: returning row count: $count")
         return count
@@ -262,7 +262,7 @@ class AppProvider: ContentProvider() {
         // notify observers
         if(count > 0) {
             Log.i(TAG, "delete: notifying observers of change with $uri")
-            context?.contentResolver?.notifyChange(uri, null)
+            context.contentResolver?.notifyChange(uri, null)
         }
         Log.d(TAG, "delete: returning count: $count")
         return count

@@ -7,9 +7,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import com.prakriti.tasktimer.databinding.ActivityMainBinding
 import com.prakriti.tasktimer.databinding.ContentMainBinding
 
@@ -20,7 +22,7 @@ private const val DIALOG_ID_CANCEL_ADD_EDIT = 2
 
 class MainActivity : AppCompatActivity(), AddEditFragment.OnSaveClicked, MainFragment.OnTaskEdit, AppDialog.DialogEvents {
 
-//    private lateinit var appBarConfiguration: AppBarConfiguration
+    //    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var activityBinding: ActivityMainBinding
     private lateinit var contentBinding: ContentMainBinding
 
@@ -30,6 +32,9 @@ class MainActivity : AppCompatActivity(), AddEditFragment.OnSaveClicked, MainFra
 
     // module/global scope bcoz we need to dismiss it in onStop (ex. orientation changes) to avoid memory leaks
     private var aboutDialog: AlertDialog? = null
+
+    private val viewModel: TaskTimerViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,14 +48,24 @@ class MainActivity : AppCompatActivity(), AddEditFragment.OnSaveClicked, MainFra
         twoPane = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE // true if landscape
         // using extension fn here, moved supportFragMgr.findFrag call to ext fn
         val fragment = findFragmentById(R.id.task_details_container)
-        if(fragment != null) { // fragment exists
+        if (fragment != null) { // fragment exists
             // fragment to edit tasks existed, so set up panes correctly
             showAddEditPane()
         } else {
             // no fragment -> hide right hand pane
-            contentBinding.taskDetailsContainer.visibility = if(twoPane) View.INVISIBLE else View.GONE
+            contentBinding.taskDetailsContainer.visibility =
+                if (twoPane) View.INVISIBLE else View.GONE
             contentBinding.mainFragment.visibility = View.VISIBLE // ------err
         }
+        // observe timings data
+        viewModel.timing.observe(this, Observer<String> { timing ->
+            val txtCurrentTask = findViewById<TextView>(R.id.txtCurrentTask)
+            txtCurrentTask.text = if (timing != null) {
+                getString(R.string.current_timing_message, timing)
+            } else {
+                getString(R.string.no_task_selected)
+            }
+        })
 
     }
 
@@ -173,7 +188,8 @@ class MainActivity : AppCompatActivity(), AddEditFragment.OnSaveClicked, MainFra
 
             }
             R.id.menu_main_settings -> {
-
+                val dialog = SettingsDialog()
+                dialog.show(supportFragmentManager, null)
             }
             R.id.main_menu_aboutApp -> {
                 showAboutDialog()
@@ -188,11 +204,13 @@ class MainActivity : AppCompatActivity(), AddEditFragment.OnSaveClicked, MainFra
                 val fragment = findFragmentById(R.id.task_details_container)
                 // show confirmation dialog to exit in case edits have been made to task in AddEditFrag
                 if(fragment is AddEditFragment) { // check before casting to type
-                    if((fragment as AddEditFragment).isDataPresent()) {
-                        showConfirmationDialog(DIALOG_ID_CANCEL_ADD_EDIT,
+                    if (fragment.isDataPresent()) { // cast fragment to AddEditFragment if required
+                        showConfirmationDialog(
+                            DIALOG_ID_CANCEL_ADD_EDIT,
                             getString(R.string.dialog_confirm_exit_message),
                             R.string.dialog_abandon_changes_btn, // pos btn
-                            R.string.dialog_cont_editing) // neg btn
+                            R.string.dialog_cont_editing
+                        ) // neg btn
                     }
                 } else {
                     removeAddEditPane(fragment)
@@ -311,11 +329,13 @@ class MainActivity : AppCompatActivity(), AddEditFragment.OnSaveClicked, MainFra
 //            removeAddEditPane(fragment)
         // add exit confirmation dialog code here
             if(fragment is AddEditFragment) { // check before casting to type
-                if((fragment as AddEditFragment).isDataPresent()) {
-                    showConfirmationDialog(DIALOG_ID_CANCEL_ADD_EDIT,
+                if (fragment.isDataPresent()) {
+                    showConfirmationDialog(
+                        DIALOG_ID_CANCEL_ADD_EDIT,
                         getString(R.string.dialog_confirm_exit_message),
                         R.string.dialog_abandon_changes_btn,
-                        R.string.dialog_cont_editing)
+                        R.string.dialog_cont_editing
+                    )
                 }
             } else {
                 removeAddEditPane(fragment)

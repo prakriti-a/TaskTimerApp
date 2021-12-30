@@ -11,7 +11,7 @@ import android.util.Log
 private const val TAG = "AppDatabase"
 
 private const val DATABASE_NAME = "TaskTimer.db"
-private const val DATABASE_VERSION = 1
+private const val DATABASE_VERSION = 2
 
 internal class AppDatabase private constructor(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 // Singleton class -> private constructor, getter in companion object
@@ -30,22 +30,48 @@ internal class AppDatabase private constructor(context: Context): SQLiteOpenHelp
             ${TasksContract.Columns.TASK_DESCRIPTION} TEXT, 
             ${TasksContract.Columns.TASK_SORT_ORDER} INTEGER);
         """.replaceIndent(" ")
-        Log.d(TAG, "onCreate: SQL cmd: $createTasksSQL")
+        Log.d(TAG, "onCreate: create Tasks table: $createTasksSQL")
         db.execSQL(createTasksSQL)
+
+        addTimingsTable(db)
+        // any changes in db called in onCreate must also be added in onUpgrade upon changing db version
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         Log.d(TAG, "onUpgrade called")
-        when(oldVersion) {
-            1 -> {
-                //upgrade logic from version 1
+        when (oldVersion) {
+            1 -> { //upgrade logic from version 1
+                addTimingsTable(db) // upgrade will be performed for existing devices
             }
             else -> throw  IllegalStateException("onUpgrade() with unknown newVersion: $newVersion")
         }
     }
 
+    private fun addTimingsTable(db: SQLiteDatabase) {
+        val createTimingsSQL = """CREATE TABLE ${TimingsContract.TABLE_NAME} (
+            ${TimingsContract.Columns.ID} INTEGER PRIMARY KEY NOT NULL,
+            ${TimingsContract.Columns.TIMING_TASK_ID} INTEGER NOT NULL,
+            ${TimingsContract.Columns.TIMING_START_TIME} INTEGER,
+            ${TimingsContract.Columns.TIMING_DURATION} INTEGER);
+        """.replaceIndent(" ")
+        Log.d(TAG, "onCreate: create Timings table: $createTimingsSQL")
+        db.execSQL(createTimingsSQL)
+
+        // run trigger to auto-delete Timings record upon deletion of a Task record
+        val removeTaskTrigger = """CREATE TRIGGER Remove_Task
+            AFTER DELETE ON ${TasksContract.TABLE_NAME}
+            FOR EACH ROW
+            BEGIN
+            DELETE FROM ${TimingsContract.TABLE_NAME}
+            WHERE ${TimingsContract.Columns.TIMING_TASK_ID} = OLD.${TasksContract.Columns.ID};
+            END;
+        """.replaceIndent(" ")
+        Log.d(TAG, "onCreate: remove tasks trigger: $removeTaskTrigger")
+        db.execSQL(removeTaskTrigger)
+    }
+
     companion object : SingletonHolder<AppDatabase, Context>(::AppDatabase)
-        // this makes AppDatabase a singleton class, accessed by getInstance()
+    // this makes AppDatabase a singleton class, accessed by getInstance()
 
 /*
     // replaced by SingletonHolder class
