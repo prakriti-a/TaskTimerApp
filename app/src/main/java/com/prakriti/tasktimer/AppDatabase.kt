@@ -11,9 +11,10 @@ import android.util.Log
 private const val TAG = "AppDatabase"
 
 private const val DATABASE_NAME = "TaskTimer.db"
-private const val DATABASE_VERSION = 2
+private const val DATABASE_VERSION = 4
 
-internal class AppDatabase private constructor(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+internal class AppDatabase private constructor(context: Context) :
+    SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 // Singleton class -> private constructor, getter in companion object
 
     init { // cannot instantiate AppDatabase as its constructor is private
@@ -33,15 +34,27 @@ internal class AppDatabase private constructor(context: Context): SQLiteOpenHelp
         Log.d(TAG, "onCreate: create Tasks table: $createTasksSQL")
         db.execSQL(createTasksSQL)
 
-        addTimingsTable(db)
         // any changes in db called in onCreate must also be added in onUpgrade upon changing db version
+        addTimingsTable(db)
+        addCurrentTimingView(db)
+        addDurationsView(db)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         Log.d(TAG, "onUpgrade called")
         when (oldVersion) {
-            1 -> { //upgrade logic from version 1
-                addTimingsTable(db) // upgrade will be performed for existing devices
+            1 -> { // upgrade logic from version 1
+                addTimingsTable(db)
+                addCurrentTimingView(db)
+                addDurationsView(db)
+                // upgrade will be performed for existing devices
+            }
+            2 -> {
+                addCurrentTimingView(db)
+                addDurationsView(db)
+            }
+            3 -> {
+                addDurationsView(db)
             }
             else -> throw  IllegalStateException("onUpgrade() with unknown newVersion: $newVersion")
         }
@@ -68,6 +81,60 @@ internal class AppDatabase private constructor(context: Context): SQLiteOpenHelp
         """.replaceIndent(" ")
         Log.d(TAG, "onCreate: remove tasks trigger: $removeTaskTrigger")
         db.execSQL(removeTaskTrigger)
+    }
+
+    // table to create view CurrentTiming record
+    private fun addCurrentTimingView(db: SQLiteDatabase) {
+        /* // SQL command
+        CREATE VIEW viewCurrentTiming
+             AS SELECT Timings._id, Timings.TaskId, Timings.StartTime, Tasks.Name
+             FROM Timings JOIN Tasks
+             ON Timings.TaskId = Tasks._id
+             WHERE Timings.Duration = 0
+             ORDER BY Timings.StartTime DESC;
+         */
+        val createTimingViewSQL = """CREATE VIEW ${CurrentTimingContract.TABLE_NAME}
+            AS SELECT ${TimingsContract.TABLE_NAME}.${TimingsContract.Columns.ID},
+            ${TimingsContract.TABLE_NAME}.${TimingsContract.Columns.TIMING_TASK_ID},
+            ${TimingsContract.TABLE_NAME}.${TimingsContract.Columns.TIMING_START_TIME},
+            ${TasksContract.TABLE_NAME}.${TasksContract.Columns.TASK_NAME} 
+            FROM ${TimingsContract.TABLE_NAME} 
+            JOIN ${TasksContract.TABLE_NAME} 
+            ON ${TimingsContract.TABLE_NAME}.${TimingsContract.Columns.TIMING_TASK_ID} = 
+            ${TasksContract.TABLE_NAME}.${TasksContract.Columns.ID} 
+            WHERE ${TimingsContract.TABLE_NAME}.${TimingsContract.Columns.TIMING_DURATION} = 0 
+            ORDER BY ${TimingsContract.TABLE_NAME}.${TimingsContract.Columns.TIMING_START_TIME} DESC;
+            """.replaceIndent(" ")
+        Log.d(TAG, createTimingViewSQL)
+        db.execSQL(createTimingViewSQL)
+    }
+
+    // create view for the durations -> we only read data, no scope for updating the db from this view
+    private fun addDurationsView(db: SQLiteDatabase) {
+        /* // sql cmd
+        CREATE VIEW viewTaskDurations
+             AS SELECT Tasks.Name, Tasks.Description, Timings.StartTime,
+             DATE(Timings.StartTime, 'unixepoch', 'localtime') AS StartDate,
+             SUM(Timings.Duration) AS Duration
+             FROM Tasks INNER JOIN Timings
+             ON Tasks._id = Timings.TaskId
+             GROUP BY Tasks._id, StartDate;
+         */
+        val createDurationsViewSQL = """CREATE VIEW ${DurationsContract.TABLE_NAME}
+            AS SELECT ${TasksContract.TABLE_NAME}.${TasksContract.Columns.TASK_NAME}, 
+            ${TasksContract.TABLE_NAME}.${TasksContract.Columns.TASK_DESCRIPTION}, 
+            ${TimingsContract.TABLE_NAME}.${TimingsContract.Columns.TIMING_START_TIME}, 
+            DATE(${TimingsContract.TABLE_NAME}.${TimingsContract.Columns.TIMING_START_TIME}, 'unixepoch', 'localtime') 
+            AS ${DurationsContract.Columns.START_DATE}, 
+            SUM(${TimingsContract.TABLE_NAME}.${TimingsContract.Columns.TIMING_DURATION}) 
+            AS ${DurationsContract.Columns.DURATION} 
+            FROM ${TasksContract.TABLE_NAME} INNER JOIN ${TimingsContract.TABLE_NAME} 
+            ON ${TasksContract.TABLE_NAME}.${TasksContract.Columns.ID} = 
+            ${TimingsContract.TABLE_NAME}.${TimingsContract.Columns.TIMING_TASK_ID} 
+            GROUP BY ${TasksContract.TABLE_NAME}.${TasksContract.Columns.ID}, ${DurationsContract.Columns.START_DATE};
+            """.replaceIndent(" ")
+        Log.d(TAG, createDurationsViewSQL)
+        db.execSQL(createDurationsViewSQL)
     }
 
     companion object : SingletonHolder<AppDatabase, Context>(::AppDatabase)

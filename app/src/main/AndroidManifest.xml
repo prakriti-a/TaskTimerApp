@@ -16,15 +16,22 @@
             android:theme="@style/Theme.TaskTimer.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".DurationsReportActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity">
+            <!-- android:label="@string/app_name" -->
+            <!-- android:theme="@style/Theme.TaskTimer.NoActionBar"> -->
+        </activity>
 
         <provider
-            android:authorities="com.prakriti.tasktimer.provider"
             android:name=".AppProvider"
-            android:exported="false"/>
-
+            android:authorities="com.prakriti.tasktimer.provider"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,7 +13,8 @@
         android:layout_height="wrap_content"
         android:maxLength="@integer/name_maxLength"
         android:hint="@string/add_edit_name_hint"
-        android:inputType="textNoSuggestions"/>
+        android:inputType="textNoSuggestions"
+        android:importantForAutofill="no" />
 
     <EditText
         android:id="@+id/edtInputTaskDesc"
@@ -23,7 +23,8 @@
         android:maxLength="@integer/desc_maxLength"
         android:hint="@string/add_edit_desc_hint"
         android:layout_marginTop="@dimen/padding"
-        android:inputType="textMultiLine"/>
+        android:inputType="textMultiLine"
+        android:importantForAutofill="no" />
 
     <EditText
         android:id="@+id/edtInputSortOrder"
@@ -32,7 +33,8 @@
         android:layout_marginTop="@dimen/padding"
         android:maxLength="@integer/order_maxLength"
         android:hint="@string/add_edit_order_hint"
-        android:inputType="number"/>
+        android:inputType="number"
+        android:importantForAutofill="no" />
 
     <Button
         android:id="@+id/btnSave"

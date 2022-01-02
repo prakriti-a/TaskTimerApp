@@ -108,7 +108,7 @@ class AddEditFragment : Fragment() {
         Log.d(TAG, "saveTask called")
 
         val newTask = createTaskFromUi()
-        if(!newTask.equals(task)) { // can also replace this with != operator, works with data classes
+        if (newTask != task) { // !equals() can be replaced with != operator, works with data classes
             Log.d(TAG, "saveTask: saving task #${newTask.id}")
             task = viewModel.saveTask(newTask)
             Log.d(TAG, "saveTask: task id is ${task?.id}")

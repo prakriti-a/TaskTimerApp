@@ -11,9 +11,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.prakriti.tasktimer.databinding.ActivityMainBinding
 import com.prakriti.tasktimer.databinding.ContentMainBinding
+import com.prakriti.tasktimer.debug.TestData
 
 private const val TAG = "MainActivity"
 
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity(), AddEditFragment.OnSaveClicked, MainFra
             contentBinding.mainFragment.visibility = View.VISIBLE // ------err
         }
         // observe timings data
-        viewModel.timing.observe(this, Observer<String> { timing ->
+        viewModel.timing.observe(this, { timing ->
             val txtCurrentTask = findViewById<TextView>(R.id.txtCurrentTask)
             txtCurrentTask.text = if (timing != null) {
                 getString(R.string.current_timing_message, timing)
@@ -173,6 +173,12 @@ class MainActivity : AppCompatActivity(), AddEditFragment.OnSaveClicked, MainFra
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
+        if (BuildConfig.DEBUG) {
+            // app will not compile debug code when generating release build
+            // debug logs are also removed from release builds
+            val generateData = menu.findItem(R.id.main_menu_generateData)
+            generateData.isVisible = true
+        }
         return true
     }
 
@@ -195,7 +201,9 @@ class MainActivity : AppCompatActivity(), AddEditFragment.OnSaveClicked, MainFra
                 showAboutDialog()
             }
             R.id.main_menu_generateData -> {
-
+                // option for creating test data is to be enabled in debug mode
+                // this reference will not compile when generating release build, comment it out then
+                TestData.generateTestData(contentResolver)
             }
             android.R.id.home -> {
                 // up button on toolbar/action bar for backwards nav -> remove frag on up click

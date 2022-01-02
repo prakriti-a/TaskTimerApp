@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.prakriti.tasktimer.databinding.FragmentMainBinding
 
@@ -39,10 +38,13 @@ class MainFragment : Fragment(), CursorRVAdapter.OnTaskClickListener, AppDialog.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // subscribe to viewmodel
-        viewModel.cursor.observe(this, Observer {
-            cursor -> cursorRVAdapter.swapCursor(cursor)?.close() }) // swapping cursor when it changes
-            // swapCursor() returns the old cursor, and it is closed here^
+        // subscribe to viewModel
+        viewModel.cursor.observe(
+            this,
+            { cursor ->
+                cursorRVAdapter.swapCursor(cursor)?.close()
+            }) // swapping cursor when it changes
+        // swapCursor() returns the old cursor, and it is closed here^
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -100,6 +102,6 @@ class MainFragment : Fragment(), CursorRVAdapter.OnTaskClickListener, AppDialog.
         Log.i(TAG, "onTaskLongClicked called")
     }
 
-    companion object {}
+//    companion object {}
 
 }

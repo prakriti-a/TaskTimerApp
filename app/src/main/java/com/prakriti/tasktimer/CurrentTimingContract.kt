@@ -2,13 +2,13 @@ package com.prakriti.tasktimer
 
 import android.net.Uri
 
-object DurationsContract {
+object CurrentTimingContract {
 // Views in sqlite3 are read-only
 
-    internal const val TABLE_NAME = "viewTaskDurations" // access modifier for db constants
+    internal const val TABLE_NAME = "viewCurrentTiming" // access modifier for db constants
 
     /**
-     * URI to access TaskDurations view
+     * URI to access CurrentTiming view
      */
     val CONTENT_URI: Uri = Uri.withAppendedPath(CONTENT_AUTHORITY_URI, TABLE_NAME)
 
@@ -19,10 +19,9 @@ object DurationsContract {
 
     // this view joins columns from Tasks and Timings table, doesn't have its own ID
     object Columns {
-        const val NAME = TasksContract.Columns.TASK_NAME
-        const val DESCRIPTION = TasksContract.Columns.TASK_DESCRIPTION
+        const val TIMING_ID = TimingsContract.Columns.ID
+        const val TASK_ID = TimingsContract.Columns.TIMING_TASK_ID
         const val START_TIME = TimingsContract.Columns.TIMING_START_TIME
-        const val START_DATE = "StartDate" // calculated by sqlite3 functions
-        const val DURATION = TimingsContract.Columns.TIMING_DURATION
+        const val TASK_NAME = TasksContract.Columns.TASK_NAME
     }
 }

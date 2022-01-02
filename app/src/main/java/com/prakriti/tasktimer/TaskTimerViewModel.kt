@@ -1,5 +1,6 @@
 package com.prakriti.tasktimer
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ContentValues
 import android.database.ContentObserver
@@ -46,6 +47,9 @@ class TaskTimerViewModel(application: Application): AndroidViewModel(application
         // register observer here, can have 1 observer per URI, or one observer for many URIs
         getApplication<Application>().contentResolver
             .registerContentObserver(TasksContract.CONTENT_URI, true, contentObserver)
+        // retrieve task that is being currently timed before loading the task list
+        // so user wont start timing a task when current/retrieved task is possibly still being timed
+        currentTiming = retrieveTiming()
         loadTasks()
     }
 
@@ -60,7 +64,8 @@ class TaskTimerViewModel(application: Application): AndroidViewModel(application
                 // use getter & specify exact type of application within <>
                 TasksContract.CONTENT_URI, projection, null, null, orderBy
             )
-            if (cursor != null) { // null-check bug?
+            if (cursor != null) {
+                // *BUG* requires !! asserted call even after null-check
                 databaseCursor.postValue(cursor!!) // use postValue -> different thread
             }
         }
@@ -170,7 +175,46 @@ class TaskTimerViewModel(application: Application): AndroidViewModel(application
         }
     }
 
+    @SuppressLint("Range")
+    private fun retrieveTiming(): Timing? {
+        // for queries to viewCurrentTiming
+        Log.d(TAG, "retrieveTiming called")
+        val timing: Timing?
+        // accessing db on main UI thread to ensure timing is loaded before user interacts with UI
+        val timingCursor: Cursor? = getApplication<Application>().contentResolver.query(
+            CurrentTimingContract.CONTENT_URI,
+            null, // get all columns
+            null,
+            null,
+            null
+        )
+
+        if (timingCursor != null && timingCursor.moveToFirst()) {
+            // in descending order, so get the first one
+            // we have an un-timed record
+            val id =
+                timingCursor.getLong(timingCursor.getColumnIndex(CurrentTimingContract.Columns.TIMING_ID))
+            val taskId =
+                timingCursor.getLong(timingCursor.getColumnIndex(CurrentTimingContract.Columns.TASK_ID))
+            val startTime =
+                timingCursor.getLong(timingCursor.getColumnIndex(CurrentTimingContract.Columns.START_TIME))
+            val name =
+                timingCursor.getString(timingCursor.getColumnIndex(CurrentTimingContract.Columns.TASK_NAME))
+            timing = Timing(taskId, startTime, id)
+
+            // update LiveData obj
+            taskTiming.value = name
+        } else {
+            // no timing record found with 0 duration
+            timing = null
+        }
+        timingCursor?.close()
+        return timing
+    }
+
     override fun onCleared() {
+        // this method will not be called on device shut down due to 0% battery, or android killing the app due to low memory
+        // so don't use this method to persist data or saving state, use activity/fragment's onPause or onStop in such cases
         Log.i(TAG, "onCleared called")
         // unregister observer, avoid memory leaks
         getApplication<Application>().contentResolver.unregisterContentObserver(contentObserver)

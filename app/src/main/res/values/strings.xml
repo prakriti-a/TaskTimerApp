@@ -29,4 +29,8 @@
     <string name="about_email">For Support, email tasktimer@learnprogramming.academy</string>
     <string name="about_credits">Icon derived from <b>analog clock</b> at openclipart.org by <b>Anonymous</b></string>
     <string name="current_timing_message">Currently timing %1$s</string>
+    <string name="view_task_name">Task Name</string>
+    <string name="view_task_start_date">Date</string>
+    <string name="view_task_duration">Duration</string>
+    <string name="view_task_description">Description</string>
 </resources>

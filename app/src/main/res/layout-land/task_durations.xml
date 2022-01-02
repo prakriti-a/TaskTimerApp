@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <TextView
+        android:id="@+id/txtViewTaskNameHeading"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/padding_small"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="@dimen/padding_small"
+        android:background="?attr/colorButtonNormal"
+        android:padding="@dimen/padding_small"
+        android:text="@string/view_task_name"
+        android:textAlignment="viewStart"
+        android:textColor="@color/black"
+        android:textSize="@dimen/small_text"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/txtViewTaskDescHeading"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintHorizontal_weight="2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtViewTaskDescHeading"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/padding_small"
+        android:layout_marginEnd="@dimen/padding_small"
+        android:background="?attr/colorButtonNormal"
+        android:padding="@dimen/padding_small"
+        android:text="@string/view_task_description"
+        android:textAlignment="viewStart"
+        android:textColor="@color/black"
+        android:textSize="@dimen/small_text"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@id/txtViewTaskNameHeading"
+        app:layout_constraintEnd_toStartOf="@id/txtViewStartTimeHeading"
+        app:layout_constraintHorizontal_weight="2"
+        app:layout_constraintStart_toEndOf="@id/txtViewTaskNameHeading" />
+
+    <TextView
+        android:id="@+id/txtViewStartTimeHeading"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/padding_small"
+        android:layout_marginEnd="@dimen/padding_small"
+        android:background="?attr/colorButtonNormal"
+        android:padding="@dimen/padding_small"
+        android:text="@string/view_task_start_date"
+        android:textAlignment="viewStart"
+        android:textColor="@color/black"
+        android:textSize="@dimen/small_text"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@id/txtViewTaskDescHeading"
+        app:layout_constraintEnd_toStartOf="@id/txtViewDurationHeading"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintStart_toEndOf="@id/txtViewTaskDescHeading" />
+
+    <TextView
+        android:id="@+id/txtViewDurationHeading"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/padding_small"
+        android:layout_marginEnd="@dimen/padding_small"
+        android:background="?attr/colorButtonNormal"
+        android:padding="@dimen/padding_small"
+        android:text="@string/view_task_duration"
+        android:textAlignment="viewStart"
+        android:textColor="@color/black"
+        android:textSize="@dimen/small_text"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@id/txtViewStartTimeHeading"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintStart_toEndOf="@id/txtViewStartTimeHeading" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvViewTaskList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtViewTaskNameHeading"
+        tools:listitem="@layout/task_durations_items" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -22,8 +22,8 @@ private const val TASKS = 100
 private const val TASKS_ID = 101
 private const val TIMINGS = 200
 private const val TIMINGS_ID = 201
+private const val CURRENT_TIMING = 300
 private const val TASK_DURATIONS = 400
-private const val TASK_DURATIONS_ID = 401
 
 val CONTENT_AUTHORITY_URI: Uri = Uri.parse("content://$CONTENT_AUTHORITY") // default public, can be used outside app
 
@@ -38,7 +38,11 @@ class AppProvider: ContentProvider() {
         val matcher = UriMatcher(UriMatcher.NO_MATCH) // code to match for root URI
 
         // match 1. content://com.prakriti.tasktimer.provider/Tasks
-        matcher.addURI(CONTENT_AUTHORITY, TasksContract.TABLE_NAME, TASKS) // returns code 100 if URI passed matches to this path, etc...
+        matcher.addURI(
+            CONTENT_AUTHORITY,
+            TasksContract.TABLE_NAME,
+            TASKS
+        ) // returns code 100 if URI passed matches to this path, etc...
         // match 1. content://com.prakriti.tasktimer.provider/Tasks/_id
         matcher.addURI(CONTENT_AUTHORITY, "${TasksContract.TABLE_NAME}/#", TASKS_ID)
         // # is a wild card replaced by numeric id, * is for matching numbers & text
@@ -47,9 +51,11 @@ class AppProvider: ContentProvider() {
         matcher.addURI(CONTENT_AUTHORITY, TimingsContract.TABLE_NAME, TIMINGS)
         matcher.addURI(CONTENT_AUTHORITY, "${TimingsContract.TABLE_NAME}/#", TIMINGS_ID)
 
+        // for CurrentTiming view
+        matcher.addURI(CONTENT_AUTHORITY, CurrentTimingContract.TABLE_NAME, CURRENT_TIMING)
+
 //        // for Durations View
-//        matcher.addURI(CONTENT_AUTHORITY, DurationsContract.TABLE_NAME, TASK_DURATIONS)
-//        matcher.addURI(CONTENT_AUTHORITY, "${DurationsContract.TABLE_NAME}/#", TASK_DURATIONS_ID)
+        matcher.addURI(CONTENT_AUTHORITY, DurationsContract.TABLE_NAME, TASK_DURATIONS)
 
         return matcher
     }
@@ -68,8 +74,8 @@ class AppProvider: ContentProvider() {
             TASKS_ID -> TasksContract.CONTENT_ITEM_TYPE
             TIMINGS -> TimingsContract.CONTENT_TYPE
             TIMINGS_ID -> TimingsContract.CONTENT_ITEM_TYPE
-//            TASK_DURATIONS -> DurationsContract.CONTENT_TYPE
-//            TASK_DURATIONS_ID -> DurationsContract.CONTENT_ITEM_TYPE
+            CURRENT_TIMING -> CurrentTimingContract.CONTENT_ITEM_TYPE
+            TASK_DURATIONS -> DurationsContract.CONTENT_TYPE
             else -> throw IllegalArgumentException("unknown Uri: $uri")
         }
     }
@@ -104,14 +110,11 @@ class AppProvider: ContentProvider() {
                 queryBuilder.appendWhereEscapeString("$timingId")
             }
 
-//            TASK_DURATIONS -> queryBuilder.tables = DurationsContract.TABLE_NAME
-//
-//            TASK_DURATIONS_ID -> {
-//                queryBuilder.tables = DurationsContract.TABLE_NAME
-//                val durationId = DurationsContract.getId(uri)
-//                queryBuilder.appendWhere("${DurationsContract.Columns.ID} = ")
-//                queryBuilder.appendWhereEscapeString("$durationId")
-//            }
+            CURRENT_TIMING -> {
+                queryBuilder.tables = CurrentTimingContract.TABLE_NAME
+            }
+
+            TASK_DURATIONS -> queryBuilder.tables = DurationsContract.TABLE_NAME
 
             else -> throw IllegalArgumentException("Unknown URI: $uri")
         }

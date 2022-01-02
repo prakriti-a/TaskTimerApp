@@ -1,6 +1,10 @@
-*.iml
+# Gradle files
 .gradle
+/build
+# Local configuration file (sdk path, etc)
 /local.properties
+# IntelliJ
+*.iml
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
@@ -8,8 +12,11 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-/build
+# Android Studio generated files and folders
 /captures
 .externalNativeBuild
 .cxx
-local.properties
+*.apk
+# Keystore files
+*.jks
+*.keystore
